@@ -131,10 +131,10 @@ Keyball44は VIA V3 の公式データベースに未登録のため、カスタ
 cd /Users/masanao.oba/workspace/qmk
 
 # VIA JSON → QMK Configurator JSON
-qmk via2json -kb keyball/keyball44 -l LAYOUT_no_ball -o qmk_keymap.json keymap.json
+qmk via2json -kb keyball/keyball44 -l LAYOUT_no_ball -o qmk_via_backup.json via_backup.json
 
 # QMK JSON → keymap.c
-qmk json2c -o keymap_generated.c qmk_keymap.json
+qmk json2c -o keymap_generated.c qmk_via_backup.json
 ```
 
 ### Step 3: keymap.c にマージ
@@ -174,7 +174,7 @@ qmk flash -kb keyball/keyball44 -km via_custom
 | ファイル | 用途 |
 |----------|------|
 | `via_v3.json` | usevia.app 用 V3 定義 (customKeycodes付き) |
-| `keymap.json` | VIA エクスポートのバックアップ |
+| `via_backup.json` | VIA エクスポートのバックアップ |
 
 ---
 
