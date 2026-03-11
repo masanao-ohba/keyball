@@ -1,42 +1,47 @@
 # Keyball44 via_custom キーマップ
 
-`via` キーマップをベースに、Auto Mouse Layer上でCtrl+Tabなどの修飾キー操作を可能にするカスタムファームウェア。
+`via` キーマップをベースにしたカスタムファームウェア。
 
 ## 変更内容
 
-`keymap.c` に `is_mouse_record_user()` 関数を追加。
+### キーマップ再設計
 
-```c
-bool is_mouse_record_user(uint16_t keycode, keyrecord_t* record) {
-    switch (keycode) {
-        case KC_TAB:
-        case KC_LCTL:
-        case KC_RCTL:
-            return true;
-        default:
-            return false;
-    }
-}
-```
+レイヤー構成を見直し、数字・記号・矢印へのアクセスを改善した。
 
-### 効果
+| Layer | 用途 | アクセス方法 |
+|-------|------|-------------|
+| 0 | ベース（QWERTY） | — |
+| 1 | Auto Mouse Layer | トラックボール操作で自動切替 |
+| 2 | 数字 + 矢印 | TG(2) でトグル / MO(2) で一時切替 |
+| 3 | 記号（Shift不要化） | LT(3,ESC) / LT(3,BS) でホールド |
 
-- Auto Mouse Layer (Layer 1) 上で **Tab, 左Ctrl, 右Ctrl** を押してもレイヤーが解除されなくなる
-- これにより、トラックボール操作中に右手だけで **Ctrl+Tab** (タブ切替) が可能になる
+設計原則:
+- **反対の手でレイヤー切替**（Miryoku方式）: ホールドする手と打鍵する手を分ける
+- **数字はトグル**（TG）: 連続入力に対応
+- **記号はホールド**（LT）: 単発入力が主のため
+- **Shift不要化**: 記号レイヤーに S(KC_1) 等を直接配置し、Shift+Hold+Key の三重押しを回避
 
-### 影響範囲
+### Auto Mouse Layer の改善
 
-- REMAPで設定したキーマップ (EEPROM) には影響しない
-- Layer構造、マトリクス構造は変更なし
-- Tab/Ctrlのキーとしての機能は従来通り（修飾キーの組み合わせも正常に動作）
-- 変わるのは「Auto Mouse Layerの解除判定」のみ
+2つの仕組みで、Ctrl+Tab（ブラウザタブ切替）がLayer 1上で途切れなくなる。
+
+1. **`is_mouse_record_user()`**: Tab キーとモディファイアキーを「マウスキー」として扱い、押下時にレイヤーが即座に解除されるのを防ぐ
+2. **`matrix_scan_user()`**: Ctrl 保持中に Auto Mouse Layer のタイムアウトを無効化し、Tab 連打間のタイムアウトによるレイヤー解除を防ぐ
+
+### 起動時の初期化
+
+`keyboard_post_init_user()` で以下を設定:
+- スクロールスナップモード: FREE
+- Auto Mouse Layer: 有効
+
+これにより EEPROM の状態に関わらず、起動時に常にこれらが有効になる。
 
 ---
 
 ## ビルド
 
 ```bash
-cd /Users/masanao.oba/workspace/qmk
+cd ../qmk
 qmk compile -kb keyball/keyball44 -km via_custom
 ```
 
@@ -53,7 +58,7 @@ qmk compile -kb keyball/keyball44 -km via_custom
 3. 書き込みコマンドを実行:
 
 ```bash
-cd /Users/masanao.oba/workspace/qmk
+cd ../qmk
 qmk flash -kb keyball/keyball44 -km via_custom
 ```
 
@@ -64,22 +69,31 @@ qmk flash -kb keyball/keyball44 -km via_custom
 
 Keyball44は左右で同じファームウェアが動作するため、**左手側への書き込みのみで完了**。右手側への個別書き込みは不要。
 
----
+### keymap.c の変更を反映するには
 
-## 動作確認
+VIA 対応ファームウェアでは EEPROM に保存されたキーマップが `keymap.c` のデフォルトより優先される。`keymap.c` を変更した場合、通常のフラッシュだけでは反映されない。
 
-1. トラックボールを動かす → Auto Mouse Layer (Layer 1) が有効になる
-2. REMAPでLayer 1に配置したTabキーを押す → **レイヤーが維持されたまま**Tabが入力される
-3. 右親指のCtrl (Space/*Ctrl) をHoldしながらTabを押す → **Ctrl+Tab** が送信される
-4. Ctrlを押したままTab連打 → タブ一覧UIでタブを巡回できる
+Bootmagic Lite（`rules.mk` で有効化済み）を使って EEPROM をクリアする:
+
+1. USBケーブルを抜く
+2. **左上キー（マトリクス [0,0]）を押しながら** USBケーブルを接続
+3. EEPROM がクリアされる
+4. ケーブルを抜いて再接続 → `keymap.c` のデフォルトが反映される
+
+クリアにより以下の設定がデフォルト値に戻る:
+
+- **キーマップ（全レイヤー）** — `keymap.c` のデフォルトに戻る
+- **CPI（トラックボール感度）**
+- **スクロール除数（scroll divider）**
+- **Auto Mouse Layer 有効/無効** — `keyboard_post_init_user` で起動時に再有効化される
+- **Auto Mouse Layer タイムアウト**
+- **スクロールスナップモード** — `keyboard_post_init_user` で起動時に FREE に再設定される
 
 ---
 
 ## トラブルシューティング
 
 ### 書き込み後にキーが効かない / 挙動がおかしい
-
-**原因の切り分け:**
 
 1. **REMAPに接続して確認** → キーマップが表示されれば、ファームウェア自体は正常
 2. **Layer 1以外のキーで問題が出るか確認** → Layer 0で通常入力できればOK
@@ -96,11 +110,9 @@ config.h の以下の設定が残っているか確認:
 
 ### EEPROMが壊れた（キーマップが初期化された）
 
-ファームウェア再ビルド時にVIAのビルド日マジックが変わるとEEPROMがリセットされ、キーマップが初期状態に戻る。
+ファームウェア再ビルド時にVIAのビルド日マジックが変わるとEEPROMがリセットされ、キーマップが初期状態に戻ることがある。
 
-**対策**: VIAでキーマップをJSONエクスポートし、`keymap.c` に変換して埋め込んでおけば、リセット後もデフォルトが自分の設定になる。手順は下記「VIAキーマップを keymap.c に反映する」を参照。
-
-**応急処置**: VIAまたはREMAPで再接続し、手動でキーを再設定する。各レイヤーの設定は `remap.pdf` を参照。VIAでバックアップJSONがあれば Load で即復元可能。
+`keymap.c` に自分の設定を反映しておけば、リセットされてもデフォルトが自分の設定になる。手順は下記「VIAキーマップを keymap.c に反映する」を参照。
 
 ---
 
@@ -128,7 +140,7 @@ Keyball44は VIA V3 の公式データベースに未登録のため、カスタ
 ### Step 2: VIA JSON → QMK JSON → keymap.c
 
 ```bash
-cd /Users/masanao.oba/workspace/qmk
+cd ../qmk
 
 # VIA JSON → QMK Configurator JSON
 qmk via2json -kb keyball/keyball44 -l LAYOUT_no_ball -o qmk_via_backup.json via_backup.json
@@ -183,35 +195,10 @@ qmk flash -kb keyball/keyball44 -km via_custom
 元の `via` キーマップで再ビルド・書き込みするだけで戻せる:
 
 ```bash
-cd /Users/masanao.oba/workspace/qmk
+cd ../qmk
 qmk flash -kb keyball/keyball44 -km via
 ```
 
 書き込み手順は上記と同じ（リセットボタン2回 → 自動書き込み）。
 
 REMAPのキーマップ (EEPROM) は切り戻し後も保持される。
-
----
-
-## 今後の拡張
-
-`is_mouse_record_user()` に他のキーコードを追加することで、Auto Mouse Layer上で
-解除されないキーを増やせる:
-
-```c
-bool is_mouse_record_user(uint16_t keycode, keyrecord_t* record) {
-    switch (keycode) {
-        case KC_TAB:
-        case KC_LCTL:
-        case KC_RCTL:
-        // 例: Shiftも追加する場合
-        // case KC_LSFT:
-        // case KC_RSFT:
-            return true;
-        default:
-            return false;
-    }
-}
-```
-
-変更後は再ビルド＆書き込みが必要。
