@@ -263,7 +263,7 @@ PCBとプレートが密着していることを確認する。
 4. 内側へ順番に設置する
 
 ![](docs/images/switch_plate.jpg)
-![](docs/images/switch_plate_ng.jpg)
+![](docs/images/switch_plate_ng.png)
 
 ### 注意
 
