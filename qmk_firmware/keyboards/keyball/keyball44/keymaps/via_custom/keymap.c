@@ -24,18 +24,18 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   // Layer 0: Base (QWERTY)
   // Left thumb: TG(2)=数字トグル, MO(2)=矢印クイックリターン, GUI+SPC, ENT, ALT
-  // Right middle-right: LT(2,-)=数字レイヤー右手ホールド
+  // Right lower-right: LT(2,/)=数字レイヤー右手ホールド
   // Left top-left: LT(3,ESC)=記号レイヤー左手ホールド
   [0] = LAYOUT_universal(
     LT(3,KC_ESC), KC_Q     , KC_W     , KC_E     , KC_R     , KC_T     ,                                        KC_Y     , KC_U     , KC_I     , KC_O     , KC_P     , KC_BSPC  ,
-    LCTL_T(KC_TAB), KC_A   , KC_S     , KC_D     , KC_F     , KC_G     ,                                        KC_H     , KC_J     , KC_K     , KC_L     , KC_QUOT  , LT(2,KC_MINS),
-    KC_LSFT  , KC_Z     , KC_X     , KC_C     , KC_V     , KC_B     ,                                        KC_N     , KC_M     , MT(MOD_LCTL|MOD_RCTL,KC_COMM), KC_DOT, KC_SLSH, MT(MOD_LSFT|MOD_RSFT,KC_LBRC),
-              TG(2)    , MO(2)    , MT(MOD_LGUI,KC_SPC), MT(MOD_LALT,KC_ENT), KC_CAPS,                  MT(MOD_LALT|MOD_RALT,KC_ENT), MT(MOD_LGUI|MOD_RGUI,KC_SPC), MT(MOD_LCTL|MOD_RCTL,KC_LNG2), KC_RALT, KC_INT1
+    LCTL_T(KC_TAB), KC_A   , KC_S     , KC_D     , KC_F     , KC_G     ,                                        KC_H     , KC_J     , KC_K     , KC_L     , KC_QUOT  , KC_MINS  ,
+    KC_LSFT  , KC_Z     , KC_X     , KC_C     , KC_V     , KC_B     ,                                        KC_N     , KC_M     , MT(MOD_LCTL|MOD_RCTL,KC_COMM), KC_DOT, LT(2,KC_SLSH), MT(MOD_LSFT|MOD_RSFT,KC_LBRC),
+              TG(2)    , MO(2)    , MT(MOD_LGUI,KC_SPC), MT(MOD_LALT,KC_ENT), KC_CAPS,                  MT(MOD_LALT|MOD_RALT,KC_ENT), MT(MOD_LGUI|MOD_RGUI,KC_SPC), MT(MOD_LCTL|MOD_RCTL,KC_LNG2), KC_RALT, KC_INT3
   ),
 
   // Layer 1: Auto Mouse Layer (auto-activated on trackball movement)
   [1] = LAYOUT_universal(
-    TO(0)    , KC_NO    , KC_NO    , KC_NO    , KC_NO    , KC_NO    ,                                        KC_NO    , KC_NO    , KC_NO    , KC_NO    , KC_NO    , KC_NO    ,
+    TO(0)    , KC_NO    , KC_NO    , KC_NO    , KC_NO    , KC_NO    ,                                        KC_NO    , KC_NO    , KC_NO    , KC_NO    , KC_NO    , KC_BSPC  ,
     LCTL_T(KC_TAB), KC_NO, KC_NO   , KC_NO    , KC_NO    , KC_NO    ,                                        KC_NO    , KC_BTN1  , C(KC_UP) , KC_BTN2  , SCRL_MO  , KC_TAB   ,
     KC_LSFT  , KC_NO    , KC_NO    , KC_NO    , KC_NO    , KC_NO    ,                                        _______  , C(KC_LEFT), C(KC_DOWN), C(KC_RGHT), _______, _______  ,
               _______  , KC_LALT  , KC_BTN4  , MT(MOD_LSFT,KC_ENT), _______,                  MT(MOD_LSFT|MOD_RSFT,KC_ENT), MT(MOD_LCTL|MOD_RCTL,KC_SPC), _______, _______, _______
@@ -58,7 +58,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     _______  , S(KC_1)  , S(KC_2)  , S(KC_3)  , S(KC_4)  , S(KC_5)  ,                                        S(KC_6)  , S(KC_7)  , S(KC_8)  , S(KC_9)  , KC_MINS  , KC_EQL   ,
     _______  , KC_NO    , KC_NO    , KC_NO    , KC_NO    , KC_NO    ,                                        KC_NO    , KC_NO    , S(KC_RBRC), S(KC_NUHS), KC_SCLN , KC_QUOT  ,
     KC_LSFT  , KC_NO    , KC_NO    , KC_NO    , KC_NO    , KC_NO    ,                                        KC_NO    , KC_NO    , KC_RBRC  , KC_NUHS  , KC_SLSH  , S(KC_INT3),
-              _______  , _______  , MT(MOD_LGUI,KC_SPC), KC_LSFT  , _______  ,                   KC_RSFT  , MT(MOD_LGUI|MOD_RGUI,KC_SPC), _______       , S(KC_INT1), _______
+              _______  , _______  , MT(MOD_LGUI,KC_SPC), KC_LSFT  , _______  ,                   KC_RSFT  , MT(MOD_LGUI|MOD_RGUI,KC_SPC), _______       , S(KC_INT1), S(KC_INT1)
   ),
 };
 // clang-format on
