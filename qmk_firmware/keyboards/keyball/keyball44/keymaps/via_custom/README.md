@@ -42,10 +42,18 @@
 
 ```bash
 cd ../qmk
-qmk compile -kb keyball/keyball44 -km via_custom
+uv run --active qmk compile -kb keyball/keyball44 -km via_custom
 ```
 
 成功すると `keyball_keyball44_via_custom.hex` が生成される。
+
+### 環境セットアップ（初回のみ）
+
+```bash
+cd ../qmk
+uv venv .venv --python 3.8
+uv pip install -r requirements.txt
+```
 
 ## 書き込み (Flash)
 
@@ -59,7 +67,7 @@ qmk compile -kb keyball/keyball44 -km via_custom
 
 ```bash
 cd ../qmk
-qmk flash -kb keyball/keyball44 -km via_custom
+uv run --active qmk flash -kb keyball/keyball44 -km via_custom
 ```
 
 4. `Detecting USB port, reset your controller now...` と表示されたら、再度リセットボタンを押す（自動検出される場合もある）
@@ -143,10 +151,10 @@ Keyball44は VIA V3 の公式データベースに未登録のため、カスタ
 cd ../qmk
 
 # VIA JSON → QMK Configurator JSON
-qmk via2json -kb keyball/keyball44 -l LAYOUT_no_ball -o qmk_via_backup.json via_backup.json
+uv run --active qmk via2json -kb keyball/keyball44 -l LAYOUT_no_ball -o qmk_via_backup.json via_backup.json
 
 # QMK JSON → keymap.c
-qmk json2c -o keymap_generated.c qmk_via_backup.json
+uv run --active qmk json2c -o keymap_generated.c qmk_via_backup.json
 ```
 
 ### Step 3: keymap.c にマージ
@@ -177,8 +185,8 @@ qmk json2c -o keymap_generated.c qmk_via_backup.json
 ### Step 4: ビルド・書き込み
 
 ```bash
-qmk compile -kb keyball/keyball44 -km via_custom
-qmk flash -kb keyball/keyball44 -km via_custom
+uv run --active qmk compile -kb keyball/keyball44 -km via_custom
+uv run --active qmk flash -kb keyball/keyball44 -km via_custom
 ```
 
 ### 同梱ファイル
@@ -196,7 +204,7 @@ qmk flash -kb keyball/keyball44 -km via_custom
 
 ```bash
 cd ../qmk
-qmk flash -kb keyball/keyball44 -km via
+uv run --active qmk flash -kb keyball/keyball44 -km via
 ```
 
 書き込み手順は上記と同じ（リセットボタン2回 → 自動書き込み）。

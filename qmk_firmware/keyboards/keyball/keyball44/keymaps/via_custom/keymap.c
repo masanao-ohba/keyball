@@ -26,7 +26,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   [0] = LAYOUT_universal(
     LT(3,KC_ESC),      KC_Q,      KC_W,      KC_E,      KC_R,      KC_T,       KC_Y,      KC_U,      KC_I,      KC_O,      KC_P,   KC_BSPC,
     LCTL_T(KC_TAB),      KC_A,      KC_S,      KC_D,      KC_F,      KC_G,       KC_H,      KC_J,      KC_K,      KC_L,   KC_QUOT,   KC_MINS,
-      KC_LSFT,      KC_Z,      KC_X,      KC_C,      KC_V,      KC_B,       KC_N,      KC_M, MT(MOD_LCTL|MOD_RCTL,KC_COMM),    KC_DOT, LT(3,KC_SLSH), MT(MOD_LSFT|MOD_RSFT,KC_LBRC),
+      KC_LSFT,      KC_Z,      KC_X,      KC_C,      KC_V,      KC_B,       KC_N,      KC_M, MT(MOD_LCTL|MOD_RCTL,KC_COMM),    KC_DOT, LT(2,KC_SLSH), MT(MOD_LSFT|MOD_RSFT,KC_LBRC),
             _______, LT(2,KC_LNG2), MT(MOD_LGUI,KC_SPC), MT(MOD_LALT,KC_ENT),   KC_CAPS,  MT(MOD_LALT|MOD_RALT,KC_ENT), MT(MOD_LGUI|MOD_RGUI,KC_SPC), MT(MOD_LCTL|MOD_RCTL,KC_LNG2),   KC_RALT,   KC_INT3
   ),
 
@@ -49,7 +49,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   // Layer 3: Symbols
   [3] = LAYOUT_universal(
       _______,   S(KC_1),   S(KC_2),   S(KC_3),   S(KC_4),   S(KC_5),    S(KC_6),   S(KC_7),   S(KC_8),   S(KC_9),   KC_MINS,    KC_EQL,
-      _______,     KC_NO,     KC_NO,     KC_NO,     KC_NO,     KC_NO,      KC_NO,     KC_NO, S(KC_RBRC), S(KC_NUHS),   KC_SCLN,   KC_QUOT,
+      _______,     KC_NO,     KC_NO,     KC_NO,     KC_NO,     KC_NO,      KC_NO,     KC_NO, S(KC_RBRC), S(KC_NUHS), S(KC_SCLN),   KC_SCLN,
       _______,     KC_NO,     KC_NO,     KC_NO,     KC_NO,     KC_NO,      KC_NO,     KC_NO,   KC_RBRC,   KC_NUHS,   KC_SLSH, S(KC_INT3),
             _______,   _______, MT(MOD_LGUI,KC_SPC), MT(MOD_LSFT,KC_ENT),   _______,  MT(MOD_LSFT|MOD_RSFT,KC_ENT), MT(MOD_LGUI|MOD_RGUI,KC_SPC),   _______, S(KC_INT1), S(KC_INT1)
   ),
