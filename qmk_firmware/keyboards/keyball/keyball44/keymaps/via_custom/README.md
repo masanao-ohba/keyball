@@ -126,42 +126,68 @@ config.h の以下の設定が残っているか確認:
 
 ## VIAキーマップを keymap.c に反映する
 
-VIA (usevia.app) でキーマップをJSON export し、QMK CLI で `keymap.c` に変換する手順。
+VIA (usevia.app) でキーマップをJSON export し、**`via2keymap.py` スクリプト**で `keymap.c` に反映する。これが本リポジトリの正式運用。`qmk via2json` / `qmk json2c` の手動経由は使わない。
+
+### 運用ルール
+
+- **`keymap.c` は手で書き換えない**。VIA 側 → `via_backup.json` → `via2keymap.py` → `keymap.c` の一方通行で同期する
+- コミット時は `via_backup.json` と `keymap.c` を**常にペアで**含める(片方だけ更新しない)
+- `keymaps[][]` 配列**以外**のコード(`matrix_scan_user` / `is_mouse_record_user` / OLED 等)はスクリプトが保持するため手編集可
 
 ### 前提条件
 
-- QMK CLI がセットアップ済み (`qmk setup`)
+- `python3` が使えること(外部依存ライブラリなし、標準ライブラリのみ)
 - usevia.app でキーボードに接続できる状態
 
 ### Step 1: usevia.app で接続・エクスポート
 
 Keyball44は VIA V3 の公式データベースに未登録のため、カスタム定義の読み込みが必要。
 
-1. usevia.app の **Settings（歯車アイコン）** → "Show Design tab" を ON
+1. usevia.app の **Settings(歯車アイコン)** → "Show Design tab" を ON
 2. **Design タブ** → "Use V2 definitions" が **OFF** であることを確認
 3. `via_v3.json` をアップロードエリアにドロップ
 4. **Configure タブ** → "Authorize device +" → Keyball44 を選択して接続
-5. キーマップが表示されたら、上部メニューの **Save/Load** → JSON でエクスポート
+5. キーマップが表示されたら、上部メニューの **Save/Load** → JSON でエクスポートし、本ディレクトリの `via_backup.json` を上書き保存
 
 > **注意**: Keyball44 ファームウェアは VIA プロトコル v12 を報告するため、V3形式の定義JSONが必須。V2定義 (`via.json`) は接続後に無視される。
 
-### Step 2: VIA JSON → QMK JSON → keymap.c
+### Step 2: via2keymap.py で keymap.c に反映
+
+本ディレクトリで以下を実行するだけ:
+
+```bash
+python3 via2keymap.py
+```
+
+スクリプトが自動で以下を行う:
+
+- `via_backup.json` を読み込み、マトリクス順 → `LAYOUT_universal` 引数順に並び替え
+- `via_v3.json` の `customKeycodes` を参照し `CUSTOM(N)` を実際のキーコード名(`SCRL_MO` 等)に解決
+- VIA 特有のエイリアスを QMK 名に正規化(`KC_MS_BTN1` → `KC_BTN1`、`KC_HAEN` → `KC_LNG1`、`MT(MOD_LCTL,…)` → `LCTL_T(…)` 等)
+- `keymap.c` の `// clang-format off` ～ `// clang-format on` で囲まれた `keymaps[][]` ブロックをインプレースで置換(外側のコードは保持)
+
+主なオプション:
+
+| オプション | 用途 |
+|----------|------|
+| `--dry-run` | 書き込まず生成結果を標準出力に表示。差分確認用 |
+| `--via-backup PATH` | 入力 JSON を明示指定(デフォルト `./via_backup.json`) |
+| `--via-def PATH` | CUSTOM(N) 定義元を明示指定(デフォルト `./via_v3.json`) |
+| `--keymap PATH` | パッチ対象を明示指定(デフォルト `./keymap.c`) |
+
+### Step 3: ビルド・書き込み
 
 ```bash
 cd ../qmk
-
-# VIA JSON → QMK Configurator JSON
-uv run --active qmk via2json -kb keyball/keyball44 -l LAYOUT_no_ball -o qmk_via_backup.json via_backup.json
-
-# QMK JSON → keymap.c
-uv run --active qmk json2c -o keymap_generated.c qmk_via_backup.json
+uv run --active qmk compile -kb keyball/keyball44 -km via_custom
+uv run --active qmk flash -kb keyball/keyball44 -km via_custom
 ```
 
-### Step 3: keymap.c にマージ
+EEPROM 上の VIA キーマップが優先されるため、`keymap.c` のデフォルトを実機に反映させたい場合は本 README 上部「keymap.c の変更を反映するには」の Bootmagic Lite 手順で EEPROM をクリアする。
 
-`keymap_generated.c` の `keymaps[]` 配列を既存の `keymap.c` にコピーする。
+### CUSTOM(N) 参照表(手動確認用)
 
-**CUSTOM(N) の置換が必要**: VIA は Keyball 固有キーコードを `CUSTOM(N)` として出力する。ビルド前に以下の対応表で置き換えること:
+スクリプトが自動解決するため通常は不要だが、`via_backup.json` を目視確認するときのリファレンス:
 
 | VIA 表記 | keymap.c での記述 | 説明 |
 |----------|-------------------|------|
@@ -182,19 +208,13 @@ uv run --active qmk json2c -o keymap_generated.c qmk_via_backup.json
 | `CUSTOM(14)` | `SSNP_HOR` | スクロールスナップ: 水平 |
 | `CUSTOM(15)` | `SSNP_FRE` | スクロールスナップ: 無効 |
 
-### Step 4: ビルド・書き込み
-
-```bash
-uv run --active qmk compile -kb keyball/keyball44 -km via_custom
-uv run --active qmk flash -kb keyball/keyball44 -km via_custom
-```
-
 ### 同梱ファイル
 
 | ファイル | 用途 |
 |----------|------|
+| `via2keymap.py` | **VIA backup → keymap.c 変換スクリプト(正式運用の中核)** |
 | `via_v3.json` | usevia.app 用 V3 定義 (customKeycodes付き) |
-| `via_backup.json` | VIA エクスポートのバックアップ |
+| `via_backup.json` | VIA エクスポートのバックアップ(keymap.c の「上流」) |
 
 ---
 
