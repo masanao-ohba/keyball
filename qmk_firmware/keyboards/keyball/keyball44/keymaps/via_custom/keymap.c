@@ -34,8 +34,8 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   [1] = LAYOUT_universal(
        KC_ESC,     KC_NO,     KC_NO,     KC_NO,     KC_NO,     KC_NO,      KC_NO,     KC_NO,     KC_NO,     KC_NO,     KC_NO,     KC_NO,
     LCTL_T(KC_TAB),     KC_NO,     KC_NO,     KC_NO,     KC_NO,     KC_NO,      KC_NO,   KC_BTN1,  C(KC_UP),   KC_BTN2,   SCRL_MO,    KC_TAB,
-      KC_LSFT,     KC_NO,     KC_NO,     KC_NO,     KC_NO,     KC_NO,    _______, C(KC_LEFT), C(KC_DOWN), C(KC_RGHT),   _______,   _______,
-            _______,   KC_LALT, MT(MOD_LGUI,KC_SPC), MT(MOD_LSFT,KC_ENT),   _______,  MT(MOD_LSFT|MOD_RSFT,KC_ENT), MT(MOD_LCTL|MOD_RCTL,KC_SPC),   _______,   _______,   _______
+      _______,     KC_NO,     KC_NO,     KC_NO,     KC_NO,     KC_NO,    _______, C(KC_LEFT), C(KC_DOWN), C(KC_RGHT),   _______,   _______,
+            _______,   _______,   _______,   _______,   _______,  MT(MOD_LSFT|MOD_RSFT,KC_ENT), MT(MOD_LCTL|MOD_RCTL,KC_SPC),   _______,   _______,   _______
   ),
 
   // Layer 2: Numbers + Arrows
